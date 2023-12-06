@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership Pricing Impact</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+      .input-group {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 5px;
+            display: inline-block;
+            vertical-align: top;
+            width: 24%; /* Each box will take up approximately a quarter of the container width */
+            box-sizing: border-box; /* This ensures padding and border are included in width */
+        }
+        .section-header {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .readonly-input {
+    background-color: #f3f3f3;
+    border: 1px solid #ccc;
+    color: #333;
+}
+    </style>
+</head>
+<body>
+
+<h1>Membership Pricing Impact</h1>
+<div id="formula-display"></div>
+<div class="input-group">
+    <div class="section-header">CHART SETUP</div>
+    <label for="number-of-years-input">Number of Cohorts/Years: </label>
+    <input type="number" id="number-of-years-input" value="5" min="1" max="10">
+    <br><br>
+    <hr>
+    <div class="section-header">CALCULATIONS</div>
+ 
+    <label for="new-members-input">New Members per Month: </label>
+    <input type="number" id="new-members-input" value="37" step="1" min="0" readonly class="readonly-input">
+    <br><br>
+    <label for="totalmembers">Total Members: </label>
+    <div id="totalMembers"></div>
+    <br><br>
+</div>
+<div class="input-group">
+    <div class="section-header">CURRENT STATE</div>
+    <label for="initial-members-input">Initial Members: </label>
+    <input type="number" id="initial-members-input" value="750" step="10" min="0">
+    <br><br>
+    <label for="current-recruitment-input">Current Members Recruited per Month: </label>
+    <input type="number" id="current-recruitment-input" value="37" step="1" min="0">
+  <br><br>
+    <label for="current-price-input">Current Member Price: $</label>
+<input type="number" id="current-price-input" value="50" step="1" min="25" max="100">
+<br><br>
+
+<label for="sticker-price-percentage-input">% of Sticker Price Collected: </label>
+<input type="number" id="sticker-price-percentage-input" value="80" step="1" min="0" max="100"><br><br>
+</div>
+
+<div class="input-group">
+    <div class="section-header">EXISTING MEBERERS</div>
+    <label for="existing-member-attrition-input">Monthly Attrition Rate for Existing Members (%): </label>
+    <input type="number" id="existing-member-attrition-input" value="4.5" step="0.1" min="0" max="100">
+    <br><br>
+    <label for="existing-member-price-input">Existing Member Price: $</label>
+    <input type="range" id="existing-member-price-input" value="50" step="1" min="25" max="100">
+    <span id="existing-price-display">50</span>
+    <br><br>
+<!--    <label for="price-sensitivity-existing-retention-input"> Retention Price Sensitivity (% reduction per added dollar): NOT YET IMPLEMENTED </label>
+    <input type="number" id="price-sensitivity-existing-retention-input" value="2" step="0.1" min="0" max="10">
+    <br><br> -->
+</div>
+
+<div class="input-group">
+    <div class="section-header">NEW MEMBER COHORTS</div>
+    <label for="new-member-attrition-input">Monthly Attrition Rate for New Members (%): </label>
+    <input type="number" id="new-member-attrition-input" value="4.5" step="0.1" min="0" max="100">
+    <br><br>
+    <label for="new-member-price-input">New Member Price: $</label>
+    <input type="range" id="new-member-price-input" value="50" step="1" min="25" max="100">
+    <span id="new-price-display">50</span>
+    <br><br>
+    <label for="price-sensitivity-input"> Recruitment Price Sensitivity (% reduction per added dollar): </label>
+    <input type="number" id="price-sensitivity-input" value="2" step="0.1" min="0" max="10">
+    <br><br>
+    
+</div>
+
+
+<div id="plotly-div"></div>
+<div id="formula-display"></div>
+
+<div class="chart-description">
+    <h2>Understanding the Membership Pricing Impact Chart</h2>
+    <p>This chart provides a visual representation of the projected impact of different membership pricing strategies on your organization's membership count over time. It allows you to see the effects of changing prices, attrition rates, and other variables, helping you make informed decisions.</p>
+
+    <h3>Key Elements</h3>
+    <ul>
+        <li><strong>Number of Cohorts/Years:</strong> Indicates how many years of data are being displayed.</li>
+        <li><strong>Initial Members:</strong> The starting number of existing members.</li>
+        <li><strong>Current Monthly Recruitment #:</strong> The number of new members joining each month at the current price.</li>
+        <li><strong>Monthly Base Rate of Attrition:</strong> The percentage of members leaving each month.</li>
+        <li><strong>Price Sensitivity:</strong> The percentage by which recruitment is affected for each additional dollar in membership price.</li>
+        <li><strong>New Members per Month:</strong> A calculated field showing the number of new members expected to join each month at the new price. This is based on the current recruitment number and the price sensitivity.</li>
+    </ul>
+
+    <h3>How to Interpret the Chart</h3>
+    <p>The chart plots the total membership count over the number of years specified. Each line represents a cohort of members starting at a different time, allowing you to see how membership evolves.</p>
+    <ul>
+        <li>Upward slopes indicate periods of net membership growth.</li>
+        <li>Downward slopes signify net membership loss.</li>
+        <li>Flatter lines suggest that new member recruitment is balancing out member attrition.</li>
+    </ul>
+
+    <p>Use this chart as a tool for understanding how different variables impact your membership numbers and adjust your strategies accordingly.</p>
+</div>
+
+
+<script src="updatePlot.js"></script>
+<script src="eventListeners.js"></script>
+<script src="setupPlot.js"></script>
+
+<script src="main.js"></script>
+
+
+
+</body>
+</html>
