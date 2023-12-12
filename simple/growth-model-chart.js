@@ -27,15 +27,18 @@ function updatePlot() {
     let revenueArray = [(existingMembers * existingMemberPrice + newMembers * newMemberPrice) * stickerPricePercentage];
 
     for (let i = 1; i <= 60; i++) {
-        let attritionExisting = existingMembers * existingMemberAttritionRate;
-        let attritionNew = newMembers * newMemberAttritionRate;
-        existingMembers = existingMembers - attritionExisting;
-        newMembers = (newMembers - attritionNew) + newMembersPerMonth;
-        existingMembersArray.push(existingMembers);
-        newMembersArray.push(newMembers);
-        let monthlyRevenue = (existingMembers * existingMemberPrice + newMembers * newMemberPrice) * stickerPricePercentage;
-        revenueArray.push(monthlyRevenue);
+    let attritionExisting = existingMembers * existingMemberAttritionRate;
+    let attritionNew = newMembers * newMemberAttritionRate;
+    existingMembers = existingMembers - attritionExisting;
+    newMembers = (newMembers - attritionNew) + newMembersPerMonth;
+    existingMembersArray.push(existingMembers);
+    newMembersArray.push(newMembers);
+
+    // Update this line to correctly calculate revenue from both existing and new members
+    let monthlyRevenue = (existingMembers * existingMemberPrice + newMembers * newMemberPrice) * stickerPricePercentage;
+    revenueArray.push(monthlyRevenue);
     }
+
 
     let months = Array.from({ length: 60 }, (_, i) => {
         const year = Math.floor(i / 12) + 2024;
