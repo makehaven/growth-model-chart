@@ -5,12 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Membership and Revenue Growth Charts</title>
     <style>
-        /* Add any CSS styling here */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+        }
+        section {
+            padding: 20px;
+            margin: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .chart-container {
             margin-bottom: 20px;
+        }
+        .chart-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #333;
+            color: #fff;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -18,29 +55,40 @@
     <header>
         <h1>Membership and Revenue Growth Projection</h1>
     </header>
+
     <section>
         <p>
             This project presents a series of charts projecting the growth in membership and revenue over time. 
-            The charts are based on various models and assumptions, offering different perspectives on potential growth trajectories.
+            The charts are based on various models and assumptions, offering different perspectives on potential growth trajectories. These were created to model impacts of pricing changes at a makerspace. 
         </p>
     </section>
-    <section class="chart-container">
-        <h2>Attrition Model</h2>
-        <p>Description of the Attrition model, its assumptions, and methodology.</p>
-        <a href="attrition/" target="_blank">View Attrition Model Chart</a>
-    </section>
-    <section class="chart-container">
-        <h2>Cohorts Analysis</h2>
-        <p>Description of the Cohorts Analysis, including the methodology and insights derived.</p>
-        <a href="cohorts/" target="_blank">View Cohorts Analysis Chart</a>
-    </section>
+    
     <section class="chart-container">
         <h2>Simple Growth Projection</h2>
-        <p>Description of the Simple Growth Projection model, highlighting its approach and key assumptions.</p>
+        <p>Simplified perspective on growth. An attrition rate can be set independently for new vs existing members.</p>
+        <!-- Placeholder image for Simple Growth Projection -->
+        <img src="/images/simple.jpg" alt="Simple Growth Projection Chart">
         <a href="simple/" target="_blank">View Simple Growth Projection Chart</a>
+    </section>    
+
+    <section class="chart-container">
+        <h2>Cohorts Analysis</h2>
+        <p>Adds annual cohorts to the visualization.</p>
+        <!-- Placeholder image for Cohorts Analysis -->
+        <img src="/images/cohorts.jpg" alt="Cohorts Analysis Chart">
+        <a href="cohorts/" target="_blank">View Cohorts Analysis Chart</a>
     </section>
+
+    <section class="chart-container">
+        <h2>Attrition Model</h2>
+        <p>Adds option for different attrition rates for members based on tenure (better modeling behavior of increasing retention). Also adds a linear price sensitivity so you can make a simple projection of price change impacts.</p>
+        <!-- Placeholder image for Attrition Model -->
+        <img src="/images/attrition.jpg" alt="Attrition Model Chart">
+        <a href="attrition/" target="_blank">View Attrition Model Chart</a>
+    </section>
+    
     <footer>
-        <p>Project by [Your Name or Organization]</p>
+        <p>Project by MakeHaven at www.makehaven.org</p>
     </footer>
 </body>
 </html>
