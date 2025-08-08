@@ -1,234 +1,178 @@
+function calculateLTV(yearlyAttritionRates, initialPrice, inflationRate) {
+    let ltv = 0;
+    let survivalProbability = 1.0;
+    let currentPrice = initialPrice;
+    const maxYears = 20; // Calculate LTV over a 20 year period for practicality
+
+    for (let month = 0; month < maxYears * 12; month++) {
+        if (month > 0 && month % 12 === 0) {
+            currentPrice *= (1 + inflationRate);
+        }
+
+        const year = Math.floor(month / 12);
+        const attritionRate = yearlyAttritionRates[Math.min(year, yearlyAttritionRates.length - 1)];
+
+        ltv += survivalProbability * currentPrice;
+        survivalProbability *= (1 - attritionRate);
+
+        if (survivalProbability < 0.001) {
+            break; // Stop if the member is very unlikely to still be active
+        }
+    }
+    return ltv;
+}
+
 function updatePlot() {
-    // Call calculateNewMembers at the beginning to update the 'new members per month' based on current inputs
-    calculateNewMembers();
+    // Get all input values from the DOM
+    const legacyMembers = parseFloat(document.getElementById('legacy-members-input').value);
+    const legacyMemberPrice = parseFloat(document.getElementById('legacy-member-price-input').value);
+    const legacyMemberAttritionRate = parseFloat(document.getElementById('existing-member-attrition-input').value) / 100;
+
+    const newMembersPerMonth = parseFloat(document.getElementById('new-members-input').value);
+    const initialNewMemberPrice = parseFloat(document.getElementById('new-member-price-input').value);
+    const inflationRate = parseFloat(document.getElementById('inflation-rate-input').value) / 100;
+
+    const stickerPricePercentage = parseFloat(document.getElementById('sticker-price-percentage-input').value) / 100;
+    const numberOfYears = parseInt(document.getElementById('number-of-years-input').value);
+    const numberOfMonths = numberOfYears * 12;
+
+    const yearlyAttritionRates = [
+        parseFloat(document.getElementById("year1-attrition-input").value) / 100,
+        parseFloat(document.getElementById("year2-attrition-input").value) / 100,
+        parseFloat(document.getElementById("year3-attrition-input").value) / 100,
+        parseFloat(document.getElementById("year4-attrition-input").value) / 100,
+        parseFloat(document.getElementById("year5-attrition-input").value) / 100,
+        parseFloat(document.getElementById("year6plus-attrition-input").value) / 100
+    ];
+
+    // Calculate and display LTV
+    const ltv = calculateLTV(yearlyAttritionRates, initialNewMemberPrice, inflationRate);
+    document.getElementById('ltv-display').innerText = `New Member LTV: $${ltv.toFixed(2)}`;
 
 
-    let priceSensitivity = parseFloat(document.getElementById('price-sensitivity-input').value) / 100;
-
-let initialMembers = parseFloat(document.getElementById('initial-members-input').value);
-    let existingMemberAttritionRate = parseFloat(document.getElementById('existing-member-attrition-input').value) / 100;
-    let newMembersPerMonth = parseFloat(document.getElementById('new-members-input').value);
-    let existingMemberPrice = parseFloat(document.getElementById('existing-member-price-input').value);
-    let newMemberPrice = parseFloat(document.getElementById('new-member-price-input').value);
-    let stickerPricePercentage = parseFloat(document.getElementById('sticker-price-percentage-input').value) / 100;
-
-    let existingMembers = initialMembers;  // start with initial members
-    let baseExistingMembers = initialMembers;  // keep track of the base number
-    let retentionPriceSensitivity = parseFloat(document.getElementById('price-sensitivity-existing-retention-input').value) / 100;
-
-    let newMembers = 0;
-    let existingMembersArray = [initialMembers];  // Removed the duplicate line
-    let newMembersArray = [newMembers];
-    
-
-    let priceDifference = newMemberPrice - existingMemberPrice;  // assuming newMemberPrice and existingMemberPrice are already defined
-
-
-
-// Initialize arrays for storing cohort data
-let cohortMembersArrays = {};
-let numberOfYears = parseInt(document.getElementById('number-of-years-input').value);
-let numberOfMonths = numberOfYears * 12;
-
-// Initialize array to hold the sum of all cohort members for each month
-let totalCohortMembersArray = new Array(numberOfMonths).fill(0);
-
-// Initialize cohort arrays
-for (let year = 0; year < numberOfYears; year++) {
-    cohortMembersArrays[year] = Array(numberOfMonths).fill(0);
-}
-
-let revenueArray = [];
-
-for (let i = 0; i < numberOfMonths; i++) {
-    // Calculate the revenue from existing members
-    let existingMemberRevenue = existingMembersArray[i] * existingMemberPrice;
- 
-    console.log("Before cohortMemberRevenue calculation, totalCohortMembersArray[i]:", totalCohortMembersArray[i]);  // Debug line
-    // Calculate the revenue from cohort members
-    let cohortMemberRevenue = totalCohortMembersArray[i] * newMemberPrice;
-    console.log("Cohort Member Revenue:", cohortMemberRevenue);  // Debug line
-    // Calculate the total revenue for the month
-    let monthlyRevenue = existingMemberRevenue + cohortMemberRevenue;
-
-    // Apply the sticker price percentage
-    monthlyRevenue *= (stickerPricePercentage / 100);
-
-    // Add to the revenue array
-    revenueArray.push(monthlyRevenue);
-}
-
-
-
-let yearlyAttritionRates = [
-    parseFloat(document.getElementById("year1-attrition-input").value) / 100,
-    parseFloat(document.getElementById("year2-attrition-input").value) / 100,
-    parseFloat(document.getElementById("year3-attrition-input").value) / 100,
-    parseFloat(document.getElementById("year4-attrition-input").value) / 100,
-    parseFloat(document.getElementById("year5-attrition-input").value) / 100,
-    parseFloat(document.getElementById("year6plus-attrition-input").value) / 100 // For year 6 and beyond
-];
-
-existingMemberAttritionRate = existingMemberAttritionRate * (1 + (retentionPriceSensitivity * priceDifference));
-yearlyAttritionRates = yearlyAttritionRates.map(rate => rate * (1 + (retentionPriceSensitivity * priceDifference)));
-
-for (let i = 1; i <= numberOfMonths; i++) {
-    let attritionExisting = existingMembers * existingMemberAttritionRate;
-    existingMembers = existingMembers - attritionExisting;
-    console.log("Existing Members after calculation:", existingMembers);  // Debug line
-    existingMembersArray.push(existingMembers);
-    console.log("Existing Members Array:", existingMembersArray);  // Debug line
-
-// Calculate total members for this month by adding up all cohort members
-let totalMembersForMonth = existingMembers;
-let totalNewMembersForMonth = 0;  // Initialize to 0, will sum up all new cohort members for this month
-for (let year = 0; year < numberOfYears; year++) {
-    totalNewMembersForMonth += cohortMembersArrays[year][i-1];  // Summing up the new members from each cohort
-}
-totalMembersForMonth += totalNewMembersForMonth;  // Adding new members to the total
-
-// Now, you can use totalMembersForMonth and totalNewMembersForMonth in your revenue calculation
-let monthlyRevenue = existingMembers * existingMemberPrice + totalNewMembersForMonth * newMemberPrice;
-monthlyRevenue *= stickerPricePercentage;  // Applying the sticker price percentage
-revenueArray.push(monthlyRevenue);
-
-}
-
-let months = Array.from({ length: 12 * numberOfYears }, (_, i) => {
-    const year = Math.floor(i / 12) + 2024; // Assuming the start year is 2024
-    const month = (i % 12) + 1;
-    return `${year}-${String(month).padStart(2, '0')}`;
-});
-
-console.log("Initial totalCohortMembersArray:", totalCohortMembersArray);  // Debug line
-// Cohort logic
-for (let i = 0; i < numberOfMonths; i++) {
-    let currentNewMembers = newMembersPerMonth;
-
+    // Initialize arrays for storing data
+    const legacyMembersArray = [];
+    const cohortMembersArrays = {};
     for (let year = 0; year < numberOfYears; year++) {
-        if (i < year * 12) continue;
-        
-        let monthsInThisCohort = i - year * 12;
-        let attritionRate;
-        
-        if (monthsInThisCohort < 12) {
-            attritionRate = yearlyAttritionRates[0];
-        } else if (monthsInThisCohort < 24) {
-            attritionRate = yearlyAttritionRates[1];
-        } else if (monthsInThisCohort < 36) {
-            attritionRate = yearlyAttritionRates[2];
-        } else if (monthsInThisCohort < 48) {
-            attritionRate = yearlyAttritionRates[3];
-        } else if (monthsInThisCohort < 60) {
-            attritionRate = yearlyAttritionRates[4];
+        cohortMembersArrays[year] = new Array(numberOfMonths).fill(0);
+    }
+    const totalCohortMembersArray = new Array(numberOfMonths).fill(0);
+    const revenueArray = [];
+    const months = Array.from({ length: numberOfMonths }, (_, i) => {
+        const year = Math.floor(i / 12) + 2024; // Assuming start year is 2024
+        const month = (i % 12) + 1;
+        return `${year}-${String(month).padStart(2, '0')}`;
+    });
+
+    let newMemberPrice = initialNewMemberPrice;
+    // Main simulation loop
+    for (let i = 0; i < numberOfMonths; i++) {
+        // Apply inflation at the start of each year
+        if (i > 0 && i % 12 === 0) {
+            newMemberPrice *= (1 + inflationRate);
+        }
+
+        // 1. Calculate legacy members for the current month
+        if (i === 0) {
+            legacyMembersArray[i] = legacyMembers;
         } else {
-            attritionRate = yearlyAttritionRates[5]; // For year 6 and beyond
+            const attrition = legacyMembersArray[i - 1] * legacyMemberAttritionRate;
+            legacyMembersArray[i] = legacyMembersArray[i - 1] - attrition;
         }
 
-        if (i === year * 12) {
-            cohortMembersArrays[year][i] = currentNewMembers;  // New members join in January
-        } else if (i > year * 12 && i < (year + 1) * 12) {  // For months after January but within the first year
-            cohortMembersArrays[year][i] = cohortMembersArrays[year][i - 1] * (1 - attritionRate) + currentNewMembers;
-        } else if (i >= (year + 1) * 12) {  // For months after the first year
-            cohortMembersArrays[year][i] = cohortMembersArrays[year][i - 1] * (1 - attritionRate);
+        // 2. Calculate cohort members for the current month
+        let totalCohortMembersThisMonth = 0;
+        for (let year = 0; year < numberOfYears; year++) {
+            if (i < year * 12) {
+                cohortMembersArrays[year][i] = 0;
+                continue;
+            }
+
+            const monthsInThisCohort = i - year * 12;
+            let currentYearAttritionRate;
+            if (monthsInThisCohort < 12) currentYearAttritionRate = yearlyAttritionRates[0];
+            else if (monthsInThisCohort < 24) currentYearAttritionRate = yearlyAttritionRates[1];
+            else if (monthsInThisCohort < 36) currentYearAttritionRate = yearlyAttritionRates[2];
+            else if (monthsInThisCohort < 48) currentYearAttritionRate = yearlyAttritionRates[3];
+            else if (monthsInThisCohort < 60) currentYearAttritionRate = yearlyAttritionRates[4];
+            else currentYearAttritionRate = yearlyAttritionRates[5];
+
+            let previousMonthMembers = (i > 0) ? cohortMembersArrays[year][i - 1] : 0;
+            let survivingMembers = previousMonthMembers * (1 - currentYearAttritionRate);
+
+            // Add new members to the cohort only during its first year
+            let newAdditions = (i >= year * 12 && i < (year + 1) * 12) ? newMembersPerMonth : 0;
+
+            let currentCohortSize = survivingMembers + newAdditions;
+            cohortMembersArrays[year][i] = currentCohortSize < 0.5 ? 0 : Math.round(currentCohortSize);
+            totalCohortMembersThisMonth += cohortMembersArrays[year][i];
         }
+        totalCohortMembersArray[i] = totalCohortMembersThisMonth;
 
-        // Correct for negative or lingering cohort size
-        if (cohortMembersArrays[year][i] < 1) cohortMembersArrays[year][i] = 0;
-        if (cohortMembersArrays[year][i] < 0.5) cohortMembersArrays[year][i] = 0;
+        // 3. Calculate revenue for the current month
+        const legacyMemberRevenue = legacyMembersArray[i] * legacyMemberPrice;
 
-        // Round cohort size
-        cohortMembersArrays[year][i] = Math.round(cohortMembersArrays[year][i]);
+        const cohortMemberRevenue = totalCohortMembersArray[i] * newMemberPrice;
+
+        const totalRevenue = (legacyMemberRevenue + cohortMemberRevenue) * stickerPricePercentage;
+        revenueArray.push(totalRevenue);
     }
-}
 
-// Calculate the sum of all cohort members for each month
-for (let i = 0; i < numberOfMonths; i++) {
+    // Update total members display
+    const finalTotalMembers = legacyMembersArray[numberOfMonths - 1] + totalCohortMembersArray[numberOfMonths - 1];
+    document.getElementById("totalMembers").innerText = `Ending Members: ${Math.round(finalTotalMembers)}`;
+
+    // Create Plotly traces
+    const traces = [];
+    traces.push({
+        x: months,
+        y: legacyMembersArray,
+        stackgroup: 'one',
+        name: 'Legacy Members',
+        hovertemplate: '%{y:.0f} Legacy Members<extra></extra>'
+    });
+
     for (let year = 0; year < numberOfYears; year++) {
-        totalCohortMembersArray[i] += cohortMembersArrays[year][i];
-    }
-}
-
-// Apply attrition to base existing members
-for (let i = 1; i < numberOfMonths; i++) {
-    let attritionExisting = existingMembersArray[i - 1] * existingMemberAttritionRate;
-    existingMembersArray.push(existingMembersArray[i - 1] - attritionExisting); // Push the new value into the array
-}
-
-// For total number of members
-// You can calculate this in JavaScript and update an HTML element like this:
-let totalMembers = existingMembersArray[existingMembersArray.length - 1] + totalCohortMembersArray[totalCohortMembersArray.length - 1];
-document.getElementById("totalMembers").innerText = `Total Members: ${totalMembers}`;
-
-    // Create Plotly traces for each cohort
-    let cohortTraces = [];
-    for (let year = 0; year < numberOfYears; year++) {
-        cohortTraces.push({
+        traces.push({
             x: months,
             y: cohortMembersArrays[year],
             name: `Cohort ${year + 1}`,
             stackgroup: 'one',
-            line: { width: 2 },
-            hovertemplate: cohortMembersArrays[year] > 0 ? '%{y:.0f} members<extra></extra>' : ''
+            hovertemplate: '%{y:.0f} members<extra></extra>'
         });
     }
 
-    let layout = {
+    traces.push({
+        x: months,
+        y: revenueArray.map(r => r / 1000), // Display revenue in thousands
+        name: 'Revenue',
+        yaxis: 'y2',
+        line: { color: '#1f77b4' },
+        hovertemplate: '$%{y:.1f}K<extra></extra>'
+    });
+
+    const layout = {
         title: 'Projected Membership Growth and Revenue',
-        xaxis: {
-            title: 'Year-Month',
-            tickangle: -45
-        },
-        yaxis: {
-            title: 'Membership',
-        },
+        xaxis: { title: 'Year-Month', tickangle: -45 },
+        yaxis: { title: 'Membership' },
         yaxis2: {
-            title: 'Revenue ($)',
+            title: 'Revenue ($K)',
             overlaying: 'y',
             side: 'right',
             tickprefix: '$',
             ticksuffix: 'K',
-            rangemode: 'tozero' 
-        }
+            rangemode: 'tozero'
+        },
+        hovermode: 'x unified'
     };
 
-    let trace1 = {
-        x: months,
-        y: existingMembersArray,
-        stackgroup: 'one',
-        name: 'Existing Members',
-        line: { color: '#ff7f0e' },
-        hovertemplate: '%{y:.0f} Existing base<extra></extra>'
-    };
-
-    let trace2 = {
-        x: months,
-        y: newMembersArray,
-        stackgroup: 'one',
-        name: 'New Members',
-        line: { color: '#2ca02c' },
-        hovertemplate: '%{y:.0f} New members<extra></extra>'
-    };
-
-    let trace3 = {
-        x: months,
-        y: revenueArray,
-        name: 'Revenue',
-        yaxis: 'y2',
-        line: { color: '#1f77b4' },
-        hovertemplate: '$%{y:.1f}<extra></extra>'
-    };
-
-
-    Plotly.newPlot('plotly-div', [trace1, trace3, ...cohortTraces], layout);
-
-    Plotly.newPlot('plotly-div', [trace1, trace3, ...cohortTraces], layout).then(function(gd) {
-        gd.on('plotly_hover', function(data){
-            let pointNumber = data.points[0].pointNumber;
-            let totalMembersAtPoint = existingMembersArray[pointNumber] + totalCohortMembersArray[pointNumber];
-            document.getElementById("totalMembers").innerText = "Total Members: " + Math.round(totalMembersAtPoint);
+    Plotly.newPlot('plotly-div', traces, layout).then(gd => {
+        gd.on('plotly_hover', data => {
+            if (data.points.length > 0) {
+                const pointNumber = data.points[0].pointNumber;
+                const totalMembersAtPoint = legacyMembersArray[pointNumber] + totalCohortMembersArray[pointNumber];
+                document.getElementById("totalMembers").innerText = `Total Members: ${Math.round(totalMembersAtPoint)}`;
+            }
         });
     });
-    
-
 }
