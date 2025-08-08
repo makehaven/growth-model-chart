@@ -1,35 +1,28 @@
 document.addEventListener('DOMContentLoaded', (event) => {
-    // Event Listeners for sliders that also update a display span
-    document.getElementById('new-member-price-input').addEventListener('input', function () {
-        document.getElementById('new-price-display').textContent = this.value;
-        updatePlot();
-    });
+// Event Listeners for input fields
+document.getElementById('existing-member-price-input').addEventListener('input', function () {
+    document.getElementById('existing-price-display').textContent = this.value;
+});
 
-    document.getElementById('new-members-input').addEventListener('input', function () {
-        document.getElementById('new-members-display').textContent = this.value;
-        updatePlot();
-    });
+document.getElementById('new-member-price-input').addEventListener('input', function () {
+    document.getElementById('new-price-display').textContent = this.value;
+});
 
-    // Add event listeners for all other inputs that should trigger a plot update
-    const inputs = [
-        'legacy-members-input',
-        'legacy-member-price-input',
-        'existing-member-attrition-input',
-        'sticker-price-percentage-input',
-        'number-of-years-input',
-        'inflation-rate-input',
-        'year1-attrition-input',
-        'year2-attrition-input',
-        'year3-attrition-input',
-        'year4-attrition-input',
-        'year5-attrition-input',
-        'year6plus-attrition-input'
-    ];
+document.getElementById('sticker-price-percentage-input').addEventListener('input', function () {
+    document.getElementById('sticker-price-percentage-display').textContent = this.value;
+});
 
-    inputs.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.addEventListener('input', updatePlot);
-        }
-    });
+// Event listeners for updatePlot function
+document.getElementById('initial-members-input').addEventListener('input', updatePlot);
+document.getElementById('number-of-years-input').addEventListener('input', updatePlot);
+document.getElementById('current-recruitment-input').addEventListener('input', updatePlot);
+document.getElementById('current-price-input').addEventListener('input', updatePlot);
+document.getElementById('price-sensitivity-input').addEventListener('input', updatePlot);
+document.getElementById('year1-attrition-input').addEventListener('input', updatePlot);
+document.getElementById('year2-attrition-input').addEventListener('input', updatePlot);
+document.getElementById('year3-attrition-input').addEventListener('input', updatePlot);
+document.getElementById('year4-attrition-input').addEventListener('input', updatePlot);
+document.getElementById('year5-attrition-input').addEventListener('input', updatePlot);
+document.getElementById('year6plus-attrition-input').addEventListener('input', updatePlot);
+
 });

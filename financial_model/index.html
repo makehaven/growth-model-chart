@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Model</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: sans-serif; }
+        .container { display: flex; flex-wrap: wrap; }
+        .input-group {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px;
+            width: 280px;
+        }
+        .section-header { font-weight: bold; margin-bottom: 10px; font-size: 1.1em; }
+        label { display: block; margin-top: 10px; }
+        input[type="number"], input[type="range"] { width: 90%; }
+        .chart-description { margin: 10px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<h1>Financial Model</h1>
+
+<div class="container">
+    <div class="input-group">
+        <div class="section-header">General Setup</div>
+        <label for="number-of-years-input">Projection Years: </label>
+        <input type="number" id="number-of-years-input" value="5" min="1" max="10">
+
+        <label for="sticker-price-percentage-input">% of Revenue Collected: </label>
+        <input type="number" id="sticker-price-percentage-input" value="80" step="1" min="0" max="100">
+    </div>
+
+    <div class="input-group">
+        <div class="section-header">Recruitment</div>
+        <label for="new-members-input">Base New Members per Month: </label>
+        <input type="range" id="new-members-input" value="37" step="1" min="0" max="100">
+        <span id="new-members-display">37</span>
+    </div>
+
+    <div class="input-group">
+        <div class="section-header">Price Sensitivity (Optional)</div>
+        <label>
+            <input type="checkbox" id="price-sensitivity-enabled-input">
+            Enable Price Sensitivity
+        </label>
+        <div id="price-sensitivity-inputs" style="display: none;">
+            <label for="recruitment-sensitivity-input">Recruitment Sensitivity (% reduction per $):</label>
+            <input type="number" id="recruitment-sensitivity-input" value="2" step="0.1" min="0" max="10">
+            <label for="retention-sensitivity-input">Retention Sensitivity (% increase in attrition per $):</label>
+            <input type="number" id="retention-sensitivity-input" value="1" step="0.1" min="0" max="10">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <div class="section-header">Legacy Members</div>
+        <label for="legacy-members-input">Number of Legacy Members: </label>
+        <input type="number" id="legacy-members-input" value="297" step="1" min="0">
+
+        <label for="legacy-member-price-input">Initial Legacy Member Price: $</label>
+        <input type="number" id="legacy-member-price-input" value="50" step="1" min="25" max="100">
+
+        <label for="legacy-member-price-increase-input">Annual Price Increase ($): </label>
+        <input type="number" id="legacy-member-price-increase-input" value="5" step="1" min="0" max="20">
+
+        <label for="existing-member-attrition-input">Legacy Attrition Rate (%): </label>
+        <input type="number" id="existing-member-attrition-input" value="4.5" step="0.1" min="0" max="100">
+    </div>
+
+    <div class="input-group">
+        <div class="section-header">New Members</div>
+        <label for="new-member-price-input">Initial New Member Price: $</label>
+        <input type="range" id="new-member-price-input" value="60" step="1" min="25" max="100">
+        <span id="new-price-display">60</span>
+
+        <label for="inflation-rate-input">Annual Price Increase (%): </label>
+        <input type="number" id="inflation-rate-input" value="2" step="0.1" min="0" max="10">
+    </div>
+
+    <div class="input-group">
+        <div class="section-header">New Member Attrition</div>
+        <label for="year1-attrition-input">Year 1 Attrition (%): </label>
+        <input type="number" id="year1-attrition-input" value="5" step="0.01" min="0" max="100">
+
+        <label for="year2-attrition-input">Year 2 Attrition (%): </label>
+        <input type="number" id="year2-attrition-input" value="3.5" step="0.01" min="0" max="100">
+
+        <label for="year3-attrition-input">Year 3 Attrition (%): </label>
+        <input type="number" id="year3-attrition-input" value="2.5" step="0.01" min="0" max="100">
+
+        <label for="year4-attrition-input">Year 4 Attrition (%): </label>
+        <input type="number" id="year4-attrition-input" value="1.5" step="0.01" min="0" max="100">
+
+        <label for="year5-attrition-input">Year 5 Attrition (%): </label>
+        <input type="number" id="year5-attrition-input" value="1.25" step="0.01" min="0" max="100">
+
+        <label for="year6plus-attrition-input">Year 6+ Attrition Rate (%): </label>
+        <input type="number" id="year6plus-attrition-input" value="1" step="0.01" min="0" max="100">
+    </div>
+
+    <div class="input-group">
+        <div class="section-header">Results</div>
+        <div id="totalMembers"></div>
+        <div id="ltv-display" style="margin-top: 10px;"></div>
+    </div>
+</div>
+
+<div id="plotly-div"></div>
+
+<div class="chart-description">
+    <h2>Understanding the Model</h2>
+    <p>This model projects membership and revenue over time based on a set of assumptions you can control. It's designed to help you understand the financial dynamics of your membership model and the potential impacts of changes in pricing, recruitment, and retention.</p>
+
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Legacy Members:</strong> A distinct group of existing members with their own price and attrition rate. You can model a gradual price increase for this group.</li>
+        <li><strong>New Members & Cohorts:</strong> New members are acquired each month. For visualization, they are grouped into annual cohorts. The price for new members can increase annually with inflation.</li>
+        <li><strong>Attrition:</strong> The percentage of members who leave each month. The model uses a smoothed attrition curve, interpolating between the yearly rates for a more realistic projection.</li>
+        <li><strong>Price Sensitivity:</strong> An optional feature to model the impact of price changes on recruitment and retention. When enabled, price increases will reduce the number of new members and increase the attrition rate.</li>
+        <li><strong>Lifetime Value (LTV):</strong> A projection of the total revenue a new member will generate over their entire time as a member. It is calculated based on the initial price, annual price increases, and the smoothed, tenure-based attrition rates.</li>
+    </ul>
+
+    <h3>How to Use the Chart</h3>
+    <p>Use the controls to adjust the parameters of the model. The chart will update automatically to show the projected impact. The stacked area chart shows the composition of your membership over time. The line charts on the right axis show the projected monthly revenue and the price for new members.</p>
+    <ul>
+        <li>Use the <strong>"Base New Members per Month"</strong> slider to see how changes in recruitment affect growth. If price sensitivity is enabled, this number will be adjusted based on the price.</li>
+        <li>Adjust the <strong>attrition rates</strong> to understand the impact of improved (or declining) retention. Notice how small changes in early-year attrition can significantly impact LTV and long-term revenue.</li>
+    </ul>
+</div>
+
+<script src="utilityFunctions.js"></script>
+<script src="updatePlot.js"></script>
+<script src="eventListeners.js"></script>
+<script src="setupPlot.js"></script>
+<script src="main.js"></script>
+
+</body>
+</html>
