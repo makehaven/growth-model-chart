@@ -21,7 +21,6 @@ This project was primarily designed for modeling the growth and price change imp
 - `attrition/`: Adds option for different attrition rates for members based on tenure (better modeling behavior of increasing retention). Also adds a linear price sensitivity so you can make a simple projection of price change impacts.
 
 ## Todo 
-- The attrition model math needs to be reviewed to ensure it is correct. In particular, if Year 1 attrition is lower than others, it seems to distort the line.
 - Add documention alongside the charts of the formulas used.
 
 ## MIT License 
